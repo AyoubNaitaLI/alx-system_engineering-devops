@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Getting infos
+infos () {
+	sub1=$2"."$1
+	record1=$(sudo dig $sub1 | grep -A1 ';; ANSWER SECTION:' | tail -n 1 | awk '{print $4}')
+	IP1=$(sudo dig $sub1 | grep -A1 ';; ANSWER SECTION:' | tail -n 1 | awk '{print $5}')
+	echo "The subdomain $2 is a $record1 record and points to $IP1"
+}
+if [ "$#" -eq 1 ]
+then
+	infos "$1" "www"
+	infos "$1" "lb-01"
+	infos "$1" "web-01"
+	infos "$1" "web-02"
+else
+	infos "$1" "$2"
+fi
