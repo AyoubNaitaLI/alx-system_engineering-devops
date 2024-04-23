@@ -1,21 +1,18 @@
 #!/usr/bin/python3
-""" Gathering employees data from an API """
-
-
+"""Exports to-do list information for a given employee ID to CSV format."""
+import csv
 import requests
 import sys
 
+if __name__ == "__main__":
+    user_id = sys.argv[1]
+    url = "https://jsonplaceholder.typicode.com/"
+    user = requests.get(url + "users/{}".format(user_id)).json()
+    username = user.get("username")
+    todos = requests.get(url + "todos", params={"userId": user_id}).json()
 
-if __name__ == '__main__':
-    url_info = 'https://jsonplaceholder.typicode.com/users?id='
-    url_todos = 'https://jsonplaceholder.typicode.com/todos?userId='
-    r_user = requests.get(url_info + sys.argv[1])
-    username = r_user.json()[0].get("username")
-    r_todos = requests.get(url_todos + sys.argv[1])
-    with open(sys.argv[1] + ".csv", "a") as f:
-        for task in r_todos.json():
-            id = sys.argv[1]
-            t_status = task.get("completed")
-            title = task.get("title")
-            line = f"\"{id}\",\"{username}\",\"{t_status}\",\"{title}\"\n"
-            f.write(line)
+    with open("{}.csv".format(user_id), "w", newline="") as csvfile:
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+        [writer.writerow(
+            [user_id, username, t.get("completed"), t.get("title")]
+         ) for t in todos]
